@@ -169,7 +169,7 @@ void main()
 		if(status==255){
 			LED_RED = LED;
 			LED_GREEN = 1;
-			Buzzer = 0;
+			Buzzer = 1;
 			
 		}
 		else if(status==0){
