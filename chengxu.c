@@ -112,6 +112,7 @@ void main()
 		if(Pres_Det==1){
 			status = 255;
 			ctrlStep = 40;
+			Pump = 0;
 		}
 		switch(ctrlStep){
 		
@@ -129,7 +130,7 @@ void main()
 			case 10:
 				status = 1;
 				Pump = 1;
-				if(timeStamps[0]>20){
+				if(timeStamps[0]>15){
 					ctrlStep = 20;
 					timeStamps[0] = 0;
 					Pump = 0;
@@ -167,8 +168,8 @@ void main()
 		
 		if(status==255){
 			LED_RED = LED;
-			LED_GREEN = 0;
-			Buzzer = 1;
+			LED_GREEN = 1;
+			Buzzer = 0;
 			
 		}
 		else if(status==0){
@@ -182,9 +183,9 @@ void main()
 			Buzzer = 0;
 		}		
 		else if(status==254){
-			LED_RED = 1;
-			LED_GREEN = 0;
-			Buzzer = LED_RED;
+			LED_RED = LED;
+			LED_GREEN = 1;
+			Buzzer = 1;
 		}
 	}		
 }
