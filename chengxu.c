@@ -162,13 +162,11 @@ void main()
 					status = 254;
 				}
 				break;
-			
-		
 		}
 		
 		if(status==255){
 			LED_RED = LED;
-			LED_GREEN = 1;
+			LED_GREEN = 0;
 			Buzzer = 1;
 			
 		}
@@ -184,7 +182,7 @@ void main()
 		}		
 		else if(status==254){
 			LED_RED = LED;
-			LED_GREEN = 1;
+			LED_GREEN = 0;
 			Buzzer = 1;
 		}
 	}		
