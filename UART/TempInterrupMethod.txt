@@ -1,0 +1,91 @@
+.H
+
+#include "stdio.h"
+#include <stdarg.h>
+#include <string.h>
+
+#define S1_S0 0x40              
+#define S1_S1 0x80             
+#define FOSC 11059200         //系统时钟
+#define BAUD 115200          //波特率设定115200，也可设置9600
+
+extern char UAR[20],rec_flag;//全局量
+void send1_Byte(unsigned char c);
+void Send1_String(char *s);
+void UART1_config();
+void uart1_printf(const char *fmt,...); 
+
+
+.C
+
+char UAR[20],temp,rec_flag=0;
+
+static void Uart1_Init(void)		              //@11.0592MHz
+{	 
+	EA=0;
+	ACC = P_SW1;
+	ACC &= ~(S1_S0 | S1_S1);     //S1_S0=0 S1_S1=0
+	P_SW1 = ACC;                //(P3.0/RxD, P3.1/TxD)
+	AUXR |= 0x40;                //定时器1为1T模式
+	AUXR &= 0xFE;				         //选择定时器1为波特率发生器
+	//TMOD = 0x00;                //定时器1为模式0(16位自动重载)
+	TL1 = (65536 - (FOSC/4/BAUD));   //设置波特率重装值
+	TH1 = (65536 - (FOSC/4/BAUD))>>8;
+	SCON = 0x50;                //8位可变波特率
+	TR1 = 1;                    //定时器1开始启动
+	ES  = 1; 
+	//PT0=1;
+	EA=1;    
+}
+/***************************************************************************/
+void send1_Byte(unsigned char c)
+{
+	SBUF = c;
+    while(!TI);			   //发送完会自动置1
+    TI=0;
+}
+/*----------------------------
+发送字符串
+----------------------------*/
+void Send1_String(char *s)
+{
+	while (*s){                  //检测字符串结束标志
+    	send1_Byte(*s++);
+	}
+}
+/*************************************************************
+串口接收到的数据存入UAR数组中，当接收到0x0D时表示数据接收结束
+**************************************************************/
+void UART1_Interrupt() interrupt 4		//串口中断函数接收程序
+{  
+	static unsigned char i;	
+	
+	LED = 1;
+	if (RI){
+	
+		RI=0;  
+	  	temp = SBUF;
+		UAR[i]=temp;//接收到的数据存入数组UAR中
+		i++;
+		if(temp==0x0D){ 
+			i=0;
+			rec_flag=1;//定义接收完成标志位
+		}			
+	}
+}	
+/***********************************************************************/
+void UART1_config()
+{
+	Uart1_Init();//串口一初始化
+  	//Send1_String("STC15F4K48S4\r\nUart is ok !\r\n");//发送字符串检测是否初始化成功
+}
+/*******************************************************************************/
+void uart1_printf(const char *fmt,...)  //串口打印函数
+{  
+    va_list ap;  
+	char xdata string[50];  
+    va_start(ap,fmt);  
+    vsprintf(string,fmt,ap); 
+    Send1_String(string);  
+    va_end(ap);  
+}

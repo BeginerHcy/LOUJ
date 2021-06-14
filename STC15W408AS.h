@@ -1,5 +1,8 @@
 //包含本头文件后,不用另外再包含"REG51.H"
 
+#ifndef __STCW_408AS_H__
+#define __STCW_408AS_H__
+
 //内核特殊功能寄存器        // 复位值   描述
 sfr ACC         =   0xE0;   //0000,0000 累加器Accumulator
 sfr B           =   0xF0;   //0000,0000 B寄存器
@@ -226,4 +229,7 @@ sfr PCA_PWM2    =   0xF4;   //xxxx,xx00 PCA模块1的PWM寄存器
 sfr CCAP0H      =   0xFA;   //0000,0000 PCA模块0的捕捉/比较寄存器高字节
 sfr CCAP1H      =   0xFB;   //0000,0000 PCA模块1的捕捉/比较寄存器高字节
 sfr CCAP2H      =   0xFC;   //0000,0000 PCA模块2的捕捉/比较寄存器高字节
+
+#endif
+
 
