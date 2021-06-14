@@ -18,8 +18,8 @@ QQ：115451619
 #include "uart.h"
 
 ////////////////////////////////////////////////////////////////	
-//#define DAKE
-#define XIAOKE
+#define DAKE
+//#define XIAOKE
 ////////////////////////////////////////////////////////////////
 sbit Reset_Btn 	= P1^2;			/*单片机1.2引脚检测IN1是否动作*/
 sbit Pres_Det 	= P1^3;			/*单片机1.3引脚检测IN2是否动作*/
@@ -47,6 +47,9 @@ static uint timeStampus=0,timeStampms,timeStamps[10]=0,cnt[2]=0,ctrlStep=0,statu
 static uint flashLED[4]={0};
 uint8 t,r,ii;		  //定义数据类型
 uint8 but[16];	  //数据存储数组
+int8 n,i;
+uint16 crc1;
+uint8 crcHL[2]={0};
 /********************************************************************
                             延时函数
 *********************************************************************/
@@ -148,7 +151,33 @@ void main()
 		}
 		if(flag_zx==1){   
 			
+			flag_zx = 0;
+			
+			if(g_tModS.RxCount < 4)
+				goto err_ret;
+			
+			for (n = 0; n<g_tModS.RxCount-2; n++) {
+				crc1 = g_tModS.RxBuf[n] ^ crc1;
+				for (i = 0; i < 8; i++) {
+					if (crc1 & 0x01) {
+						crc1 = crc1 >> 1;
+						crc1 = crc1 ^ 0xA001;
+					}
+					else {
+						crc1 = crc1 >> 1;
+					}
+				}
+			}
+			crcHL[0] = crc1;
+			crcHL[1] = crc1 >> 8;
+			
+			if (crcHL[0]==g_tModS.RxBuf[g_tModS.RxCount-2] &&
+				crcHL[1]==g_tModS.RxBuf[g_tModS.RxCount-1]){
+				goto err_ret;
+			}
+			
 			if(g_tModS.RxBuf[0]==0x01){
+				
 				switch(g_tModS.RxBuf[1]){
 					
 					case 0x01:					
@@ -179,11 +208,15 @@ void main()
 						break;
 					
 					default:
+						g_tModS.RspCode = RSP_ERR_CMD;
+						MODS_SendAckErr(g_tModS.RspCode);	/* 告诉主机命令错误 */
 						break;
 				
 				}
 			}
-			flag_zx = 0;
+			err_ret:
+				g_tModS.RxCount = 0;
+			 
 		}
 		////////////////////////////////////////////////////////////////
 		if(timeStampms>internalLED / 2 * 5){			
