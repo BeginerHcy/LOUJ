@@ -18,8 +18,8 @@ QQ：115451619
 #include "uart.h"
 
 ////////////////////////////////////////////////////////////////	
-#define DAKE
-//#define XIAOKE
+//#define DAKE
+#define XIAOKE
 ////////////////////////////////////////////////////////////////
 sbit Reset_Btn 	= P1^2;			/*单片机1.2引脚检测IN1是否动作*/
 sbit Pres_Det 	= P1^3;			/*单片机1.3引脚检测IN2是否动作*/
@@ -312,7 +312,7 @@ void main()
 #ifdef XIAOKE
 		
 		if(status==255){
-			LED_RED = LED;
+			LED_RED = (flashLED[0]==1);
 			LED_GREEN = 0;
 			Buzzer = 1;
 			LED = (flashLED[2]==1);
@@ -330,7 +330,7 @@ void main()
 			LED = (flashLED[1]==1);
 		}		
 		else if(status==254){
-			LED_RED = LED;
+			LED_RED = (flashLED[0]==1);
 			LED_GREEN = 0;
 			Buzzer = 1;
 			LED = (flashLED[3]==1);
@@ -341,7 +341,7 @@ void main()
 #ifdef DAKE
 		
 		if(status==255){
-			LED_RED = LED;
+			LED_RED = (flashLED[0]==1);
 			LED_GREEN = 1;
 			Buzzer = 0;
 			LED = (flashLED[2]==1);
@@ -359,7 +359,7 @@ void main()
 			LED = (flashLED[1]==1);
 		}		
 		else if(status==254){
-			LED_RED = LED;
+			LED_RED = (flashLED[0]==1);
 			LED_GREEN = 1;
 			Buzzer = 1;
 			LED = (flashLED[3]==1);
